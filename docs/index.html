@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentação — Painel Admin MIZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --border: #D1CCC7;
+    --brand: #999085;
+    --brand-deep: #7A7266;
+    --text-secondary: #645D54;
+    --text-body: #4E4841;
+    --text-heading: #38332E;
+    --white: #FFFFFF;
+    --serif: 'Instrument Serif', serif;
+    --sans: 'Inter', sans-serif;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-body);
+    line-height: 1.6;
+  }
+  main {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 72px 24px 100px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 400;
+    font-size: 44px;
+    color: var(--text-heading);
+    margin: 0 0 12px;
+  }
+  p.lead {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin: 0 0 40px;
+    max-width: 56ch;
+  }
+  ul { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 12px; }
+  li a {
+    display: block;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 22px;
+    text-decoration: none;
+    color: var(--text-heading);
+    font-weight: 500;
+    transition: border-color 0.15s ease;
+  }
+  li a:hover { border-color: var(--brand); }
+  li a span.desc {
+    display: block;
+    font-weight: 400;
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+  }
+  footer {
+    margin-top: 56px;
+    font-size: 13px;
+    color: var(--brand);
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Documentação — Painel Admin MIZ</h1>
+  <p class="lead">Índice da documentação técnica e de produto do painel administrativo e do app mobile da MIZ.</p>
+  <ul>
+    <li><a href="Documentacao-App-Miz.html">App MIZ (mobile) — documentação completa<span class="desc">Produto, jornada do usuário, telas, gamificação e banco de dados do app da lojista</span></a></li>
+    <li><a href="00-LEIA-PRIMEIRO-Admin.md">00 — Leia primeiro (Painel Admin)<span class="desc">Ordem de leitura e regras fixas do projeto Admin</span></a></li>
+    <li><a href="PRD-Admin-App-Miz.md">PRD — Painel Admin MIZ<span class="desc">Escopo funcional, princípios de segurança, ordem de implementação</span></a></li>
+    <li><a href="Backend-Supabase-App-Miz.md">Backend Supabase — App MIZ<span class="desc">Schema do banco: tabelas, colunas, RLS (fonte de verdade)</span></a></li>
+    <li><a href="Design-System-Admin-Web.md">Design System — Admin Web<span class="desc">Tokens de cor/tipografia e padrão de microinterações</span></a></li>
+  </ul>
+  <footer>Painel Admin MIZ</footer>
+</main>
+</body>
+</html>
