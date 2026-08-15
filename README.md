@@ -4,15 +4,23 @@ Painel web interno para a equipe MIZ gerenciar peças, coleções, conteúdo (Ac
 
 É um projeto **separado** do app mobile da lojista (React Native/Expo), mas conectado ao **mesmo projeto Supabase**: mesmo banco, mesma autenticação, mesmas regras de RLS. Só quem tem `role = 'admin'` no banco consegue entrar.
 
+<div align="center">
+
+### 📖 [**Documentação completa — usemizdevelopers.github.io/admappmiz**](https://usemizdevelopers.github.io/admappmiz/)
+
+Site publicado via GitHub Pages a partir da pasta [`docs/`](docs) — reúne a documentação do app mobile e do Painel Admin já formatada, sem precisar clonar o repositório.
+
+</div>
+
 ## Documentação
 
-Antes de mexer no projeto, leia nessa ordem:
+Publicada e navegável em **[usemizdevelopers.github.io/admappmiz](https://usemizdevelopers.github.io/admappmiz/)** (link acima). Os mesmos arquivos, pra quem preferir ler direto no repositório, na ordem sugerida:
 
 1. [`docs/00-LEIA-PRIMEIRO-Admin.md`](docs/00-LEIA-PRIMEIRO-Admin.md) — regras fixas do projeto (banco compartilhado com produção, nunca `service_role`, nunca migration sem aprovação)
 2. [`docs/PRD-Admin-App-Miz.md`](docs/PRD-Admin-App-Miz.md) — escopo funcional, princípios de segurança, ordem de implementação
 3. [`docs/Backend-Supabase-App-Miz.md`](docs/Backend-Supabase-App-Miz.md) — schema do banco (fonte de verdade de tabelas/colunas/RLS)
 4. [`docs/Design-System-Admin-Web.md`](docs/Design-System-Admin-Web.md) — tokens de cor/tipografia e padrão de microinterações (Framer Motion)
-5. [`docs/Documentacao-App-Miz.html`](docs/Documentacao-App-Miz.html) — documentação completa do app mobile da lojista (produto, jornada do usuário, gamificação, banco de dados). Abra localmente no navegador para visualizar formatado; o GitHub só mostra o HTML como texto puro.
+5. [`docs/Documentacao-App-Miz.html`](docs/Documentacao-App-Miz.html) — documentação completa do app mobile da lojista (produto, jornada do usuário, gamificação, banco de dados). Formatada corretamente no link do GitHub Pages acima; o GitHub só mostra o HTML como texto puro dentro do repositório.
 
 ## Áreas funcionais
 
