@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Documentação — App MIZ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Whisper&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F7F6F3;
+    --surface: #EEECE7;
+    --surface-alt: #E6E3DB;
+    --border: #D1CCC7;
+    --neutral-mid: #BEB8B1;
+    --neutral-warm: #ABA49B;
+    --brand: #999085;
+    --brand-deep: #7A7266;
+    --text-secondary: #645D54;
+    --text-body: #4E4841;
+    --text-heading: #38332E;
+    --text-strong: #221F1C;
+    --white: #FFFFFF;
+    --success: #5B7A63;
+    --pending: #B08A5A;
+    --serif: 'Instrument Serif', serif;
+    --sans: 'Inter', sans-serif;
+    --script: 'Whisper', cursive;
+    --radius: 14px;
+    --radius-sm: 10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text-body);
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  h1, h2, h3, h4 { font-family: var(--serif); color: var(--text-heading); font-weight: 400; line-height: 1.15; }
+
+  a { color: var(--brand-deep); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* ===== Layout shell ===== */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+
+  @media (max-width: 900px) {
+    .shell { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+  }
+
+  /* ===== Sidebar ===== */
+  .sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    background: var(--white);
+    border-right: 1px solid var(--border);
+    padding: 32px 24px;
+  }
+
+  .sidebar-logo {
+    font-family: var(--serif);
+    font-size: 28px;
+    letter-spacing: 0.02em;
+    color: var(--text-strong);
+    margin-bottom: 2px;
+  }
+  .sidebar-logo .dot { color: var(--brand); }
+
+  .sidebar-tagline {
+    font-family: var(--script);
+    font-size: 15px;
+    color: var(--neutral-warm);
+    margin-bottom: 28px;
+  }
+
+  .sidebar-swoosh {
+    width: 48px;
+    height: 10px;
+    margin-bottom: 32px;
+    opacity: 0.5;
+  }
+
+  nav.toc { display: flex; flex-direction: column; gap: 2px; }
+
+  .toc-group { margin-bottom: 18px; }
+  .toc-group-label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--neutral-warm);
+    font-weight: 600;
+    margin-bottom: 8px;
+    padding-left: 12px;
+  }
+
+  .toc a {
+    display: block;
+    padding: 7px 12px;
+    border-radius: 8px;
+    color: var(--text-body);
+    font-size: 14px;
+    text-decoration: none;
+    transition: background 0.15s, color 0.15s;
+  }
+  .toc a:hover { background: var(--surface); color: var(--text-strong); }
+  .toc a.active { background: var(--brand); color: var(--white); font-weight: 500; }
+
+  /* ===== Main content ===== */
+  main { padding: 64px 56px 120px; max-width: 920px; }
+  @media (max-width: 900px) { main { padding: 40px 24px 100px; } }
+
+  .hero {
+    padding-bottom: 56px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 56px;
+  }
+  .hero-eyebrow {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--brand-deep);
+    font-weight: 600;
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 56px;
+    margin-bottom: 16px;
+  }
+  .hero-sub {
+    font-size: 19px;
+    color: var(--text-secondary);
+    max-width: 640px;
+    margin-bottom: 28px;
+  }
+  .hero-meta {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    font-size: 13px;
+    color: var(--neutral-warm);
+  }
+  .hero-meta span strong { color: var(--text-heading); font-weight: 600; }
+
+  section { margin-bottom: 80px; scroll-margin-top: 32px; }
+
+  .section-eyebrow {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--brand-deep);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  section > h2 { font-size: 38px; margin-bottom: 8px; }
+  .section-intro { font-size: 16px; color: var(--text-secondary); max-width: 680px; margin-bottom: 40px; }
+
+  h3 { font-size: 24px; margin: 36px 0 14px; }
+  h4 { font-size: 17px; color: var(--text-strong); margin: 24px 0 8px; font-family: var(--sans); font-weight: 600; }
+
+  p { margin-bottom: 14px; }
+  ul, ol { margin: 0 0 14px 22px; }
+  li { margin-bottom: 6px; }
+
+  .swoosh-divider {
+    width: 56px;
+    height: 12px;
+    margin: 40px 0;
+    opacity: 0.4;
+  }
+
+  /* ===== Cards ===== */
+  .card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px 26px;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 16px;
+    margin: 24px 0;
+  }
+
+  .screen-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .screen-card .screen-num { font-family: var(--serif); font-size: 13px; color: var(--neutral-warm); margin-bottom: 4px; }
+  .screen-card h4 { margin: 0 0 8px; font-size: 17px; }
+  .screen-card p { font-size: 14px; color: var(--text-secondary); margin-bottom: 0; }
+
+  /* ===== Journey flow ===== */
+  .flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin: 32px 0;
+  }
+  .flow-step {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .flow-marker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+  .flow-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--brand);
+    border: 3px solid var(--white);
+    box-shadow: 0 0 0 1px var(--border);
+  }
+  .flow-line { width: 2px; flex: 1; background: var(--border); min-height: 40px; }
+  .flow-content { padding-bottom: 32px; }
+  .flow-content h4 { margin: 0 0 6px; font-size: 18px; color: var(--text-strong); }
+  .flow-content p { font-size: 14.5px; color: var(--text-secondary); }
+  .flow-badge {
+    display: inline-block;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--surface);
+    color: var(--brand-deep);
+    margin-bottom: 8px;
+  }
+
+  /* ===== Tables ===== */
+  table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 14.5px; }
+  th { text-align: left; font-family: var(--sans); font-weight: 600; color: var(--text-heading); padding: 10px 14px; border-bottom: 2px solid var(--text-heading); font-size: 13px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td { padding: 12px 14px; border-bottom: 1px solid var(--border); color: var(--text-body); vertical-align: top; }
+  tr:last-child td { border-bottom: none; }
+  td code, p code { background: var(--surface); padding: 2px 7px; border-radius: 5px; font-size: 13px; font-family: 'SF Mono', Consolas, monospace; color: var(--brand-deep); }
+
+  .points-highlight td:first-child { font-weight: 600; color: var(--text-strong); }
+  .points-value { font-family: var(--serif); font-size: 20px; color: var(--brand-deep); }
+
+  /* ===== DB table cards ===== */
+  .db-table {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  .db-table-head {
+    background: var(--surface);
+    padding: 14px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .db-table-name { font-family: 'SF Mono', Consolas, monospace; font-size: 16px; font-weight: 600; color: var(--text-strong); }
+  .db-table-desc { padding: 14px 22px 4px; font-size: 14px; color: var(--text-secondary); }
+  .db-table-cols { padding: 4px 22px 18px; }
+  .col-tag { font-size: 11px; padding: 2px 8px; border-radius: 6px; background: var(--surface-alt); color: var(--text-secondary); font-weight: 500; }
+
+  /* ===== Status dashboard ===== */
+  .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin: 28px 0; }
+  .status-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .status-card-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px; }
+  .status-card h4 { margin: 0; font-size: 15px; }
+  .status-pct { font-family: var(--serif); font-size: 26px; color: var(--brand-deep); }
+  .bar-track { height: 8px; background: var(--surface); border-radius: 20px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--brand); border-radius: 20px; }
+
+  .pending-list { display: flex; flex-direction: column; gap: 10px; margin: 24px 0; }
+  .pending-item {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    padding: 12px 16px; font-size: 14.5px;
+  }
+  .pending-item.resolved { opacity: 0.55; }
+  .pending-item.resolved .pending-label { text-decoration: line-through; }
+  .status-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+  .status-dot.open { background: var(--pending); }
+  .status-dot.done { background: var(--success); }
+  .pending-label { flex: 1; }
+  .pending-tag { font-size: 11px; padding: 3px 9px; border-radius: 20px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+  .pending-tag.open { background: #F3E7D8; color: var(--pending); }
+  .pending-tag.done { background: #E4EBE6; color: var(--success); }
+
+  .callout {
+    background: var(--surface);
+    border-left: 3px solid var(--brand);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    padding: 16px 20px;
+    font-size: 14.5px;
+    color: var(--text-body);
+    margin: 20px 0;
+  }
+  .callout strong { color: var(--text-strong); }
+
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 40px 56px;
+    font-size: 13px;
+    color: var(--neutral-warm);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  @media (max-width: 900px) { footer { padding: 32px 24px; } }
+
+  .mobile-nav-toggle { display: none; }
+  @media (max-width: 900px) {
+    .mobile-nav-toggle {
+      display: block; position: fixed; bottom: 20px; right: 20px; z-index: 50;
+      width: 52px; height: 52px; border-radius: 50%; background: var(--text-strong); color: var(--white);
+      border: none; font-size: 20px; cursor: pointer; box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
+    .sidebar { display: none; }
+    .sidebar.open { display: block; position: fixed; inset: 0; z-index: 40; height: 100vh; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">MIZ<span class="dot">.</span></div>
+    <div class="sidebar-tagline">documentação do app</div>
+    <svg class="sidebar-swoosh" viewBox="0 0 60 8" fill="none"><path d="M1 5.5C10 1.5 20 7.5 30 5.5C40 3.5 50 1.5 59 5.5" stroke="#999085" stroke-width="1"/></svg>
+
+    <nav class="toc">
+      <div class="toc-group">
+        <div class="toc-group-label">Visão Geral</div>
+        <a href="#sobre">Sobre o App</a>
+        <a href="#jornada">Jornada do Usuário</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label">Telas</div>
+        <a href="#telas-acesso">Acesso e Cadastro</a>
+        <a href="#telas-home">Home</a>
+        <a href="#telas-pecas">Peças e Pedido</a>
+        <a href="#telas-conteudo">Conteúdo</a>
+        <a href="#telas-ia">Inteligências</a>
+        <a href="#telas-perfil">Perfil e Ranking</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label">Gamificação</div>
+        <a href="#pontuacao">Sistema de Pontos</a>
+        <a href="#conquistas">Conquistas</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label">Banco de Dados</div>
+        <a href="#db-auth">Autenticação</a>
+        <a href="#db-pecas">Peças e Coleções</a>
+        <a href="#db-conteudo">Conteúdo</a>
+        <a href="#db-ia">Inteligências</a>
+        <a href="#db-pedidos">Pedidos</a>
+        <a href="#db-gamificacao">Gamificação</a>
+      </div>
+      <div class="toc-group">
+        <div class="toc-group-label">Projeto</div>
+        <a href="#status">Status Atual</a>
+        <a href="#pendencias">Pendências</a>
+      </div>
+    </nav>
+  </aside>
+
+  <main>
+
+    <div class="hero">
+      <div class="hero-eyebrow">Documentação técnica &amp; funcional</div>
+      <h1>App MIZ</h1>
+      <p class="hero-sub">Portal da lojista parceira — conteúdo educativo, inteligência artificial de apoio à venda, e um sistema de gamificação que transforma uso do app em pontuação real.</p>
+      <div class="hero-meta">
+        <span>Última atualização: <strong>06 de agosto de 2026</strong></span>
+        <span>Status geral: <strong>~85% concluído</strong></span>
+        <span>Stack: <strong>React Native + Expo + Supabase</strong></span>
+      </div>
+    </div>
+
+    <!-- ================= SOBRE ================= -->
+    <section id="sobre">
+      <div class="section-eyebrow">Visão Geral</div>
+      <h2>Sobre o App</h2>
+      <p class="section-intro">Um app mobile fechado, feito para lojistas revendedoras da marca MIZ — não é um app de venda direta ao consumidor.</p>
+
+      <p>O app MIZ funciona como um <strong>portal de parceria comercial</strong>. A usuária é sempre a <strong>lojista parceira</strong> (revendedora aprovada), nunca a cliente final. Dentro dele, ela encontra o catálogo de peças da marca, conteúdo educativo (Academia MIZ), assistentes de inteligência artificial especializados em vendas/marketing/produto, materiais prontos para divulgação, e um sistema de pontuação que recompensa o uso ativo do app.</p>
+
+      <div class="callout"><strong>Regra de negócio central:</strong> o app nunca processa pagamento. Toda intenção de compra — seja de uma peça avulsa, seja de um pedido com várias peças montado no app — sai como mensagem formatada para o WhatsApp. A negociação e o fechamento acontecem sempre fora do app.</div>
+
+      <h4>Os três pilares do app</h4>
+      <div class="card-grid">
+        <div class="screen-card">
+          <h4>Vender melhor</h4>
+          <p>Catálogo de peças, "Monte seu Pedido", e três IAs especializadas (Vendas, Marketing, Produto) que ajudam a lojista a abordar clientes, montar scripts e responder objeções.</p>
+        </div>
+        <div class="screen-card">
+          <h4>Aprender continuamente</h4>
+          <p>Academia MIZ com aulas em vídeo, e uma biblioteca de Material Comercial e de Marketing pronta para usar nas redes sociais e no atendimento.</p>
+        </div>
+        <div class="screen-card">
+          <h4>Ser reconhecida</h4>
+          <p>Um sistema de pontos que transforma cada ação de valor (favoritar, estudar, pedir orçamento) em pontuação, com ranking mensal e conquistas permanentes de aprendizado.</p>
+        </div>
+      </div>
+    </section>
+
+    <svg class="swoosh-divider" viewBox="0 0 60 8" fill="none"><path d="M1 5.5C10 1.5 20 7.5 30 5.5C40 3.5 50 1.5 59 5.5" stroke="#999085" stroke-width="1"/></svg>
+
+    <!-- ================= JORNADA ================= -->
+    <section id="jornada">
+      <div class="section-eyebrow">Visão Geral</div>
+      <h2>Jornada do Usuário</h2>
+      <p class="section-intro">Do primeiro acesso, ainda sem conta, até o uso diário como parceira aprovada — os estados por que toda lojista passa.</p>
+
+      <div class="flow">
+        <div class="flow-step">
+          <div class="flow-marker"><div class="flow-dot"></div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <span class="flow-badge">Estado 1 — Visitante</span>
+            <h4>Descoberta, sem cadastro</h4>
+            <p>A lojista baixa o app e navega livremente pela Home Pública: vídeo institucional, vitrine de peças, e uma prévia "espiada" de cada área restrita (Academia, IAs, Materiais). Ao tentar abrir qualquer conteúdo de verdade, um popup de cadastro aparece.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-marker"><div class="flow-dot"></div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <span class="flow-badge">Estado 2 — Cadastro enviado</span>
+            <h4>Aguardando aprovação</h4>
+            <p>A lojista preenche o formulário (dados pessoais, CNPJ/CPF, dados da loja). A partir daqui, duas coisas podem acontecer automaticamente:</p>
+            <ul>
+              <li><strong>CNPJ reconhecido</strong> pela MIZ → aprovação imediata</li>
+              <li><strong>CNPJ não reconhecido</strong> → status "Em análise", com um prazo máximo de <strong>7 dias</strong> até aprovação automática, caso ninguém revise manualmente antes</li>
+            </ul>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-marker"><div class="flow-dot"></div><div class="flow-line"></div></div>
+          <div class="flow-content">
+            <span class="flow-badge">Estado 3 — Aprovada</span>
+            <h4>Acesso liberado</h4>
+            <p>Login passa a funcionar de verdade. A Home vira a versão logada — vídeo institucional, grade de atalhos, e a tab bar completa (Início, Peças, Conteúdo, Inteligências, Perfil) fica disponível.</p>
+          </div>
+        </div>
+        <div class="flow-step">
+          <div class="flow-marker"><div class="flow-dot"></div></div>
+          <div class="flow-content">
+            <span class="flow-badge">Estado 4 — Uso recorrente</span>
+            <h4>O dia a dia da parceira</h4>
+            <p>Ela navega o catálogo, favorita peças, monta pedidos, consulta as IAs, assiste aulas, baixa materiais — e cada uma dessas ações vai alimentando sua pontuação no Ranking mensal e suas Conquistas permanentes de aprendizado.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <svg class="swoosh-divider" viewBox="0 0 60 8" fill="none"><path d="M1 5.5C10 1.5 20 7.5 30 5.5C40 3.5 50 1.5 59 5.5" stroke="#999085" stroke-width="1"/></svg>
+
+    <!-- ================= TELAS ================= -->
+    <section id="telas-acesso">
+      <div class="section-eyebrow">Telas</div>
+      <h2>Acesso e Cadastro</h2>
+      <p class="section-intro">As telas que existem fora (ou antes) do login.</p>
+      <div class="card-grid">
+        <div class="screen-card"><div class="screen-num">Tela 0</div><h4>Splash</h4><p>Tela de marca estática, sem interação, exibida no primeiro instante de abertura do app.</p></div>
+        <div class="screen-card"><div class="screen-num">Tela 1</div><h4>Home Pública</h4><p>Visitante navega livremente. Módulos restritos aparecem com cadeado; tocar neles abre o popup de cadastro.</p></div>
+        <div class="screen-card"><div class="screen-num">Tela 2</div><h4>Cadastro</h4><p>Formulário de dados pessoais e da loja. Modal de confirmação após o envio, direcionando para o Status.</p></div>
+        <div class="screen-card"><div class="screen-num">Tela 3</div><h4>Status do Cadastro</h4><p>Três estados visuais — em análise, aprovado, recusado — com CTA de suporte quando aplicável.</p></div>
+        <div class="screen-card"><div class="screen-num">Tela</div><h4>Login</h4><p>Acesso para quem já tem conta aprovada.</p></div>
+      </div>
+    </section>
+
+    <section id="telas-home">
+      <h2>Home</h2>
+      <div class="card-grid">
+        <div class="screen-card"><h4>Home Logada</h4><p>Saudação personalizada, vídeo institucional embutido (player Vimeo), grade 2×2 de atalhos (Peças, Academia, IA de Vendas, Material Comercial) e banner de novidades.</p></div>
+      </div>
+    </section>
+
+    <section id="telas-pecas">
+      <h2>Peças e Pedido</h2>
+      <div class="card-grid">
+        <div class="screen-card"><h4>Peças e Coleções</h4><p>Busca, filtros por chip (Essenciais/Coleções/Novidades/Mais Vendidos), grid de peças e coleções com favoritar.</p></div>
+        <div class="screen-card"><h4>Detalhe da Peça</h4><p>Carrossel de fotos, seleção de cor/tamanho, composição, diferenciais, e os CTAs: perguntar à IA de Produto, solicitar orçamento e adicionar ao pedido.</p></div>
+        <div class="screen-card"><h4>Meu Pedido</h4><p>Lista de peças acumuladas (com quantidade ajustável), pronta para virar uma única mensagem formatada enviada ao WhatsApp.</p></div>
+        <div class="screen-card"><h4>Meus Pedidos</h4><p>Histórico dos pedidos já enviados, com data, itens e status.</p></div>
+      </div>
+      <div class="callout"><strong>Monte seu Pedido</strong> não é um carrinho de e-commerce — nenhum pagamento acontece aqui. É um montador de mensagem: a lojista acumula peças de interesse com quantidade, e ao confirmar, o app abre o WhatsApp com tudo já formatado, registrando uma cópia no histórico de Pedidos.</div>
+    </section>
+
+    <section id="telas-conteudo">
+      <h2>Conteúdo</h2>
+      <p>Hub central acessado pela aba "Conteúdo" da barra inferior, reunindo quatro áreas:</p>
+      <div class="card-grid">
+        <div class="screen-card"><h4>Academia MIZ</h4><p>Cursos organizados por categoria, cada um com módulos em vídeo — progresso rastreado de verdade, com proteção contra avançar sem assistir.</p></div>
+        <div class="screen-card"><h4>Material Comercial</h4><p>Biblioteca de recursos para venda: catálogos, fichas técnicas, scripts de WhatsApp.</p></div>
+        <div class="screen-card"><h4>Material de Marketing</h4><p>Fotos, vídeos curtos, stories e legendas prontas para redes sociais.</p></div>
+        <div class="screen-card"><h4>Calculadora de Precificação</h4><p>Estrutura de UI pronta (custo, margem, despesas fixas) — aguardando a fórmula de cálculo ser definida pelo time.</p></div>
+      </div>
+    </section>
+
+    <section id="telas-ia">
+      <h2>Inteligências</h2>
+      <p>Hub "Miz Inteligência" apresenta as três IAs disponíveis, cada uma com a mesma estrutura de tela (parametrizada por persona).</p>
+      <div class="card-grid">
+        <div class="screen-card"><h4>IA de Vendas</h4><p>Abordagem de venda, respostas a objeções, scripts de WhatsApp, pós-venda.</p></div>
+        <div class="screen-card"><h4>IA de Marketing</h4><p>Legendas, campanhas e conteúdo para redes sociais.</p></div>
+        <div class="screen-card"><h4>IA de Produto</h4><p>Dúvidas sobre composição, combinação de peças e detalhes técnicos.</p></div>
+        <div class="screen-card"><h4>Histórico</h4><p>Conversas anteriores, com opção de favoritar as mais úteis para reconsultar depois.</p></div>
+      </div>
+    </section>
+
+    <section id="telas-perfil">
+      <h2>Perfil e Ranking</h2>
+      <div class="card-grid">
+        <div class="screen-card"><h4>Perfil</h4><p>Dados da conta, e o hub de "Minhas Conquistas" — o currículo de aprendizado permanente da lojista.</p></div>
+        <div class="screen-card"><h4>Ranking</h4><p>Posição mensal da lojista frente às outras, com o extrato de como os pontos foram formados.</p></div>
+        <div class="screen-card"><h4>Indicação de Clientes</h4><p>Clientes de varejo direcionadas pela MIZ para aquela lojista específica.</p></div>
+      </div>
+    </section>
+
+    <svg class="swoosh-divider" viewBox="0 0 60 8" fill="none"><path d="M1 5.5C10 1.5 20 7.5 30 5.5C40 3.5 50 1.5 59 5.5" stroke="#999085" stroke-width="1"/></svg>
+
+    <!-- ================= PONTUAÇÃO ================= -->
+    <section id="pontuacao">
+      <div class="section-eyebrow">Gamificação</div>
+      <h2>Sistema de Pontos e Ranking</h2>
+      <p class="section-intro">O princípio por trás de cada número: só pontua ação que tem custo real de repetir, e que aproxima a lojista de uma venda de verdade ou de aprendizado genuíno.</p>
+
+      <div class="callout">Navegar sem propósito — trocar de aba, abrir e fechar telas — <strong>nunca pontua</strong>. O sistema foi desenhado para não recompensar "cliques", só ação com significado real.</div>
+
+      <h4>Ranking Mensal — reseta todo mês</h4>
+      <table>
+        <thead><tr><th>Ação</th><th>Pontos</th><th>Regra</th></tr></thead>
+        <tbody class="points-highlight">
+          <tr><td>Abrir o app</td><td class="points-value">5</td><td>Uma vez por dia</td></tr>
+          <tr><td>Sequência de 7 dias seguidos</td><td class="points-value">+20</td><td>Bônus — quebra a sequência ao pular 1 dia</td></tr>
+          <tr><td>Solicitar orçamento (WhatsApp)</td><td class="points-value">15</td><td>Uma vez por peça, por mês</td></tr>
+          <tr><td>Favoritar uma peça</td><td class="points-value">2</td><td>Uma vez por peça, por mês</td></tr>
+          <tr><td>Usar qualquer IA</td><td class="points-value">3</td><td>Uma vez por dia, não importa quantas mensagens</td></tr>
+          <tr><td>Assistir 25% de uma aula</td><td class="points-value">2</td><td>Uma vez por módulo</td></tr>
+          <tr><td>Assistir 50% de uma aula</td><td class="points-value">3</td><td>Uma vez por módulo</td></tr>
+          <tr><td>Assistir 90% de uma aula</td><td class="points-value">5</td><td>Uma vez por módulo — também gera Conquista</td></tr>
+        </tbody>
+      </table>
+
+      <h4>Como o sistema evita fraude</h4>
+      <p>Nenhuma pontuação é escrita diretamente pelo aplicativo. Toda ação passa por uma função protegida no banco de dados, que decide sozinha se aquilo é válido — o app apenas "pede" para pontuar, nunca insere o valor diretamente. Isso impede que alguém manipule a própria pontuação chamando o sistema por fora do app.</p>
+    </section>
+
+    <section id="conquistas">
+      <h2>Conquistas — o Currículo da Lojista</h2>
+      <p class="section-intro">Um segundo sistema, independente do Ranking: permanente, nunca reseta.</p>
+      <table>
+        <thead><tr><th></th><th>Ranking Mensal</th><th>Conquistas</th></tr></thead>
+        <tbody>
+          <tr><td>Reseta?</td><td>Sim, todo mês</td><td>Nunca</td></tr>
+          <tr><td>Mede</td><td>Atividade recente</td><td>Conhecimento acumulado</td></tr>
+          <tr><td>Aparece em</td><td>Tela de Ranking</td><td>Tela de Perfil</td></tr>
+          <tr><td>Decide indicação de cliente?</td><td>Sim</td><td>Não</td></tr>
+        </tbody>
+      </table>
+      <p>Ao completar 90% de um módulo, a lojista ganha um selo permanente. Quando todos os módulos de um curso têm selo, ela ganha o certificado do curso inteiro — exibido para sempre no Perfil, independente de qualquer reset mensal.</p>
+    </section>
+
+    <svg class="swoosh-divider" viewBox="0 0 60 8" fill="none"><path d="M1 5.5C10 1.5 20 7.5 30 5.5C40 3.5 50 1.5 59 5.5" stroke="#999085" stroke-width="1"/></svg>
+
+    <!-- ================= BANCO DE DADOS ================= -->
+    <section id="db-auth">
+      <div class="section-eyebrow">Banco de Dados (Supabase)</div>
+      <h2>Autenticação e Perfil</h2>
+      <p class="section-intro">Cada tabela explicada em termos simples — o que ela guarda e por quê, não só a definição técnica.</p>
+
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">profiles</span><span class="col-tag">estende auth.users</span></div>
+        <div class="db-table-desc">O cadastro completo de cada lojista: nome, loja, CNPJ, WhatsApp, e o status de aprovação (pendente/aprovada/recusada). É a tabela mais central de todas — quase tudo mais no banco referencia ela.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">cnpjs_reconhecidos</span></div>
+        <div class="db-table-desc">Lista de CNPJs que a MIZ já reconhece — quem estiver nessa lista tem aprovação imediata ao se cadastrar.</div>
+      </div>
+    </section>
+
+    <section id="db-pecas">
+      <h2>Peças e Coleções</h2>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">pecas</span> / <span class="db-table-name">colecoes</span></div>
+        <div class="db-table-desc">O catálogo em si. Cada peça tem código, categoria, composição, e textos de "diferenciais" e "como vender" — conteúdo que a IA de Produto usa como contexto real, não inventado.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">peca_imagens</span> / <span class="db-table-name">peca_cores</span> / <span class="db-table-name">peca_tamanhos</span></div>
+        <div class="db-table-desc">As opções visuais de cada peça — fotos (hospedadas no Supabase Storage, trocáveis sem gerar novo app), cores e tamanhos disponíveis.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">favoritos</span></div>
+        <div class="db-table-desc">Quais peças cada lojista marcou como favorita — permanente, diferente do "Monte seu Pedido".</div>
+      </div>
+    </section>
+
+    <section id="db-conteudo">
+      <h2>Conteúdo</h2>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">cursos</span> / <span class="db-table-name">curso_modulos</span></div>
+        <div class="db-table-desc">Cursos da Academia e suas aulas. O vídeo de cada módulo é hospedado no Vimeo (não no Supabase), guardado aqui só como referência.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">curso_progresso</span></div>
+        <div class="db-table-desc">O quanto cada lojista já assistiu de cada módulo — inclusive o tempo real de reprodução acumulado, usado para impedir que alguém marque uma aula como concluída sem assisti-la de verdade.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">recursos_materiais</span> / <span class="db-table-name">favoritos_materiais</span></div>
+        <div class="db-table-desc">Biblioteca do Material Comercial e de Marketing (a mesma tabela cobre os dois, diferenciados por uma coluna de área) e os favoritos dessa biblioteca.</div>
+      </div>
+    </section>
+
+    <section id="db-ia">
+      <h2>Inteligências</h2>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">ia_conversas</span> / <span class="db-table-name">ia_mensagens</span></div>
+        <div class="db-table-desc">O histórico de conversas com as três IAs. A resposta da inteligência artificial é gerada por um fluxo externo (n8n) — o app nunca fala direto com o modelo de IA, só envia a pergunta e recebe a resposta pronta.</div>
+      </div>
+    </section>
+
+    <section id="db-pedidos">
+      <h2>Pedidos e Indicação</h2>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">pedidos</span> / <span class="db-table-name">pedido_itens</span></div>
+        <div class="db-table-desc">O histórico de "Monte seu Pedido" — criado no momento em que a lojista efetivamente envia o pedido pelo WhatsApp, nunca antes disso (o pedido em construção fica só no celular dela, local).</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">clientes_indicadas</span></div>
+        <div class="db-table-desc">Clientes de varejo que a MIZ direcionou para aquela lojista específica.</div>
+      </div>
+    </section>
+
+    <section id="db-gamificacao">
+      <h2>Gamificação</h2>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">pontos_eventos</span></div>
+        <div class="db-table-desc">O registro de cada ponto ganho — um log completo, auditável, não só um contador. Se um dia alguém perguntar "por que estou nessa posição do ranking", esse log tem a resposta exata.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">conquistas</span></div>
+        <div class="db-table-desc">Os selos e certificados permanentes de aprendizado, exibidos no Perfil.</div>
+      </div>
+      <div class="db-table">
+        <div class="db-table-head"><span class="db-table-name">ranking_pontos</span> <span class="col-tag">legado, não usado</span></div>
+        <div class="db-table-desc">Tabela antiga, mantida no banco por precaução, mas o app não lê mais dela — a leitura de hoje é sempre a soma agregada de <code>pontos_eventos</code> em tempo real.</div>
+      </div>
+    </section>
+
+    <svg class="swoosh-divider" viewBox="0 0 60 8" fill="none"><path d="M1 5.5C10 1.5 20 7.5 30 5.5C40 3.5 50 1.5 59 5.5" stroke="#999085" stroke-width="1"/></svg>
+
+    <!-- ================= STATUS ================= -->
+    <section id="status">
+      <div class="section-eyebrow">Projeto</div>
+      <h2>Status Atual</h2>
+      <p class="section-intro">Atualizado apenas quando solicitado — não é um painel ao vivo.</p>
+
+      <div class="status-grid">
+        <div class="status-card">
+          <div class="status-card-top"><h4>Telas &amp; Navegação</h4><span class="status-pct">100%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="status-card">
+          <div class="status-card-top"><h4>Backend / Supabase</h4><span class="status-pct">95%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:95%"></div></div>
+        </div>
+        <div class="status-card">
+          <div class="status-card-top"><h4>Gamificação</h4><span class="status-pct">100%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="status-card">
+          <div class="status-card-top"><h4>Monte seu Pedido</h4><span class="status-pct">100%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="status-card">
+          <div class="status-card-top"><h4>Microinterações</h4><span class="status-pct">100%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:100%"></div></div>
+        </div>
+        <div class="status-card">
+          <div class="status-card-top"><h4>Conteúdo Real</h4><span class="status-pct">40%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
+        </div>
+        <div class="status-card">
+          <div class="status-card-top"><h4>Build de Produção</h4><span class="status-pct">40%</span></div>
+          <div class="bar-track"><div class="bar-fill" style="width:40%"></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="pendencias">
+      <h2>Pendências Abertas</h2>
+      <div class="pending-list">
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Lista de CNPJs reconhecidos ainda não populada</span><span class="pending-tag open">Aberto</span></div>
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Confirmar se Indicação de Clientes é só leitura</span><span class="pending-tag open">Aberto</span></div>
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Materiais reais (PDFs, vídeos) para download</span><span class="pending-tag open">Aberto</span></div>
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Fórmula da Calculadora de Precificação</span><span class="pending-tag open">Aberto</span></div>
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Formato definitivo da IA (thread vs. pergunta-resposta)</span><span class="pending-tag open">Pausado</span></div>
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Painel Admin — dentro do app ou ferramenta separada</span><span class="pending-tag open">Pausado</span></div>
+        <div class="pending-item"><span class="status-dot open"></span><span class="pending-label">Ícone final do app</span><span class="pending-tag open">Aberto</span></div>
+        <div class="pending-item resolved"><span class="status-dot done"></span><span class="pending-label">Plano do Vimeo — Starter, US$12/mês</span><span class="pending-tag done">Resolvido</span></div>
+        <div class="pending-item resolved"><span class="status-dot done"></span><span class="pending-label">Origem do dado de Ranking</span><span class="pending-tag done">Resolvido</span></div>
+        <div class="pending-item resolved"><span class="status-dot done"></span><span class="pending-label">Aprovação do fluxo "Monte seu Pedido"</span><span class="pending-tag done">Resolvido</span></div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<button class="mobile-nav-toggle" id="navToggle">☰</button>
+
+<footer>
+  <span>App MIZ — documentação interna</span>
+  <span>Gerado em 06/08/2026 · atualizado sob demanda</span>
+</footer>
+
+<script>
+  // Highlight active section in sidebar on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const links = document.querySelectorAll('.toc a');
+  function onScroll() {
+    let current = '';
+    sections.forEach(s => {
+      const rect = s.getBoundingClientRect();
+      if (rect.top <= 120) current = s.id;
+    });
+    links.forEach(l => {
+      l.classList.toggle('active', l.getAttribute('href') === '#' + current);
+    });
+  }
+  window.addEventListener('scroll', onScroll);
+  onScroll();
+
+  // Mobile nav toggle
+  const toggle = document.getElementById('navToggle');
+  const sidebar = document.getElementById('sidebar');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      sidebar.classList.toggle('open');
+      toggle.textContent = sidebar.classList.contains('open') ? '✕' : '☰';
+    });
+    links.forEach(l => l.addEventListener('click', () => {
+      sidebar.classList.remove('open');
+      toggle.textContent = '☰';
+    }));
+  }
+</script>
+
+</body>
+</html>

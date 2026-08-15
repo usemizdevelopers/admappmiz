@@ -1,75 +1,86 @@
-# React + TypeScript + Vite
+# Painel Admin MIZ
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Painel web interno para a equipe MIZ gerenciar peças, coleções, conteúdo (Academia e Materiais), aprovação de cadastro de lojistas, indicação de clientes e visualização de gamificação — sem precisar mexer direto no Supabase Table Editor.
 
-Currently, two official plugins are available:
+É um projeto **separado** do app mobile da lojista (React Native/Expo), mas conectado ao **mesmo projeto Supabase**: mesmo banco, mesma autenticação, mesmas regras de RLS. Só quem tem `role = 'admin'` no banco consegue entrar.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Documentação
 
-## React Compiler
+Antes de mexer no projeto, leia nessa ordem:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. [`docs/00-LEIA-PRIMEIRO-Admin.md`](docs/00-LEIA-PRIMEIRO-Admin.md) — regras fixas do projeto (banco compartilhado com produção, nunca `service_role`, nunca migration sem aprovação)
+2. [`docs/PRD-Admin-App-Miz.md`](docs/PRD-Admin-App-Miz.md) — escopo funcional, princípios de segurança, ordem de implementação
+3. [`docs/Backend-Supabase-App-Miz.md`](docs/Backend-Supabase-App-Miz.md) — schema do banco (fonte de verdade de tabelas/colunas/RLS)
+4. [`docs/Design-System-Admin-Web.md`](docs/Design-System-Admin-Web.md) — tokens de cor/tipografia e padrão de microinterações (Framer Motion)
+5. [`docs/Documentacao-App-Miz.html`](docs/Documentacao-App-Miz.html) — documentação completa do app mobile da lojista (produto, jornada do usuário, gamificação, banco de dados). Abra localmente no navegador para visualizar formatado; o GitHub só mostra o HTML como texto puro.
 
-## Expanding the ESLint configuration
+## Áreas funcionais
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+| Área | O que faz |
+|---|---|
+| Peças e Coleções | CRUD completo, upload de imagens (Supabase Storage, bucket público) |
+| Aprovação de Cadastro | Fila de lojistas com `status_cadastro = 'pending'`, aprovar/recusar |
+| CNPJs reconhecidos | Lista de CNPJs com aprovação automática de cadastro |
+| Cursos (Academia) | CRUD de cursos e módulos — vídeo é campo de ID do Vimeo, não upload |
+| Materiais | CRUD de material Comercial/Marketing, upload de PDF/imagem (Storage privado) |
+| Indicação de Clientes | Criar indicação de cliente associada a uma lojista |
+| Gamificação | **Somente leitura** — ranking mensal e extrato de pontos, decisão consciente de não permitir ajuste manual nesta versão |
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Segurança
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+- RLS já existente no banco protege as tabelas — o Admin só funciona porque quem loga tem `role = 'admin'`, checado tanto no client quanto reforçado pelo banco
+- Autenticação via Supabase Auth (mesmo sistema do app mobile), só com a `anon key` pública — **a `service_role key` nunca aparece neste projeto**
+- Toda ação destrutiva (excluir peça, recusar cadastro) exige confirmação explícita na interface antes de executar
+- Banco compartilhado com produção do app mobile, sem staging separado — mudanças estruturais no banco (migrations) exigem aprovação explícita antes de rodar
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Stack
 
+- React 19 + [Vite](https://vite.dev) + TypeScript
+- React Router para navegação entre as áreas
+- [Supabase JS client](https://supabase.com/docs/reference/javascript) (`anon key` + RLS)
+- [Framer Motion](https://motion.dev) para microinterações (botões, listas, modais, upload)
+- [lucide-react](https://lucide.dev) para ícones
+
+## Rodando localmente
+
+```bash
+npm install
+cp .env.example .env   # preencha com as credenciais do Supabase (peça pra quem tem acesso)
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Variáveis de ambiente necessárias (ver `.env.example`):
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```
+VITE_SUPABASE_URL=
+VITE_SUPABASE_ANON_KEY=
+```
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+`.env` nunca é commitado — está no `.gitignore`.
 
+## Scripts
+
+| Comando | Faz |
+|---|---|
+| `npm run dev` | Sobe o servidor de desenvolvimento |
+| `npm run build` | Type-check (`tsc -b`) + build de produção |
+| `npm run lint` | ESLint no projeto inteiro |
+| `npm run preview` | Serve o build de produção localmente |
+
+## Estrutura
+
+```
+src/
+  components/     Componentes reutilizáveis (MotionButton, ConfirmModal, Dropzone, StatusPill, ...)
+  contexts/       AuthContext — sessão + checagem de role='admin'
+  lib/            Client Supabase, helpers de Storage (público e privado), tipos
+  pages/
+    pecas/        Peças (CRUD + galeria de imagens + cores/tamanhos)
+    colecoes/     Coleções
+    cadastros/    Aprovação de Cadastro
+    cnpjs/        CNPJs reconhecidos
+    cursos/       Cursos (Academia) + módulos
+    materiais/    Material Comercial/Marketing
+    indicacoes/   Indicação de Clientes
+    gamificacao/  Ranking + extrato de pontos (somente leitura)
 ```
