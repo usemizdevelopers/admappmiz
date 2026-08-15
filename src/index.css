@@ -1,0 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&display=swap');
+
+:root {
+  /* Tokens de cor MIZ — idênticos ao app mobile (docs/Design-System-Admin-Web.md) */
+  --white: #ffffff;
+  --background: #f7f6f3;
+  --surface: #eeece7;
+  --surface-alt: #e6e3db;
+  --border-light: #d1ccc7;
+  --neutral-mid: #beb8b1;
+  --neutral-warm: #aba49b;
+  --brand-primary: #999085;
+  --brand-deep: #7a7266;
+  --text-secondary: #645d54;
+  --text-body: #4e4841;
+  --text-heading: #38332e;
+  --text-strong: #221f1c;
+  --black: #000000;
+  --danger: #b3432b;
+  --danger-bg: rgba(179, 67, 43, 0.08);
+  --gold: #ad8a3d;
+
+  --surface-subtle: #f9f7f4;
+  --success-bg: #e3ede1;
+  --success-text: #3f6c4e;
+  --positive-bg: #e1f2e7;
+  --positive-text: #2f7350;
+  --neutral-pill-bg: #efece6;
+  --neutral-pill-text: #6b6459;
+  --danger-pill-bg: #f7e4de;
+  --danger-pill-text: #b3432b;
+  --highlight-pill-bg: #f3e6cf;
+  --highlight-pill-text: #8a6a2f;
+
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-lg: 22px;
+  --radius-pill: 9999px;
+
+  --shadow-card: 0 1px 3px rgba(34, 31, 28, 0.06), 0 1px 2px rgba(34, 31, 28, 0.04);
+  --shadow-card-hover: 0 4px 12px rgba(34, 31, 28, 0.1), 0 2px 4px rgba(34, 31, 28, 0.06);
+  --shadow-panel: 0 1px 2px rgba(34, 31, 28, 0.04), 0 12px 28px rgba(34, 31, 28, 0.08);
+  --shadow-modal: 0 12px 32px rgba(34, 31, 28, 0.16);
+
+  --font-serif: 'Instrument Serif', serif;
+  --font-sans: 'Inter', sans-serif;
+
+  /* Aliases usados pelo restante do CSS do app */
+  --text: var(--text-body);
+  --text-h: var(--text-heading);
+  --bg: var(--background);
+  --border: var(--border-light);
+  --code-bg: var(--surface);
+  --accent: var(--brand-deep);
+  --accent-bg: rgba(122, 114, 102, 0.1);
+  --accent-border: rgba(122, 114, 102, 0.4);
+  --social-bg: rgba(238, 236, 231, 0.5);
+  --shadow: var(--shadow-card);
+
+  font: 15px/145% var(--font-sans);
+  letter-spacing: 0.1px;
+  color-scheme: light;
+  color: var(--text);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  max-width: 1600px;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+}
+
+h1,
+h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  color: var(--text-heading);
+}
+
+h1 {
+  font-size: 40px;
+  letter-spacing: -0.4px;
+  margin: 24px 0;
+  @media (max-width: 1024px) {
+    font-size: 32px;
+    margin: 16px 0;
+  }
+}
+h2 {
+  font-size: 28px;
+  line-height: 118%;
+  letter-spacing: -0.2px;
+  margin: 0 0 8px;
+  @media (max-width: 1024px) {
+    font-size: 22px;
+  }
+}
+p {
+  margin: 0;
+}
