@@ -189,12 +189,15 @@ Mesma lógica de `favoritos`, mas para `recursos_materiais`.
 
 > Conforme decidido em 24/07/2026 (seção 7.1 do PRD): o app **não chama a API de IA diretamente** — chama um **webhook do n8n**, que orquestra a lógica e devolve a resposta. O Supabase aqui serve só para **persistir o histórico**, não para gerar a resposta.
 
+> ⚠️ **Atualizado em 15/08/2026 — Seleção de contexto (peça OU coleção) ao abrir qualquer IA.** A parceira pode, antes ou durante a conversa, escolher uma peça ou uma coleção como contexto — as informações reais dela (não só o ID) são enviadas no payload do webhook, para o agente de IA do lado do n8n usar como contexto real, sem inventar detalhe de produto.
+
 ### `ia_conversas`
 | Coluna | Tipo | Notas |
 |---|---|---|
 | `profile_id` | uuid | FK |
 | `persona` | text | `vendas` \| `marketing` \| `produto` |
-| `peca_relacionada_id` | uuid | nullable |
+| `peca_relacionada_id` | uuid | nullable — FK `pecas.id` |
+| `colecao_relacionada_id` | uuid | **novo** — nullable, FK `colecoes.id`. Mutuamente exclusivo com `peca_relacionada_id` (contexto é peça OU coleção, nunca os dois ao mesmo tempo) |
 | `titulo` | text | resumo da conversa (gerado a partir da 1ª pergunta) |
 | `favorita` | boolean | default false |
 
@@ -205,9 +208,44 @@ Mesma lógica de `favoritos`, mas para `recursos_materiais`.
 | `autor` | text | `usuaria` \| `ia` |
 | `conteudo` | text | |
 
+### 4.1 Payload do webhook (enriquecido em 15/08/2026)
+
+O app envia as **informações resolvidas** da peça/coleção selecionada, não só o ID — evita round-trip extra do lado do n8n e dá ao agente de IA contexto real pronto pra usar:
+
+```json
+{
+  "profile_id": "uuid-da-lojista",
+  "persona": "marketing",
+  "conversa_id": "uuid-ou-null-se-nova",
+  "mensagem": "texto digitado pela usuária",
+  "contexto": {
+    "tipo": "peca" | "colecao" | null,
+    "peca": {
+      "id": "uuid",
+      "nome": "Blusa Mia",
+      "codigo_referencia": "BL0001",
+      "categoria": "blusas",
+      "composicao": "60% viscose, 35% poliéster, 5% elastano",
+      "diferenciais": "...",
+      "como_vender": "...",
+      "cores": ["off-white", "taupe", "marrom", "preto"],
+      "tamanhos": ["P", "M", "G"],
+      "disponibilidade": "disponivel" | "esgotado"
+    },
+    "colecao": {
+      "id": "uuid",
+      "nome": "Coleção Essencial",
+      "tipo": "essenciais",
+      "ativa": true
+    }
+  }
+}
+```
+`contexto.peca` e `contexto.colecao` só um dos dois vem preenchido por vez (o outro fica `null`); `contexto` inteiro pode ser `null` se a conversa for sem contexto nenhum (fluxo genérico, como já era antes).
+
 **Fluxo de envio de mensagem (não é escrita direta na tabela pelo app):**
 ```
-App → POST webhook n8n (payload: profile_id, persona, peca_id, mensagem)
+App → POST webhook n8n (payload acima)
    → n8n processa (consulta API de IA + o que for necessário)
    → n8n grava a mensagem do usuário E a resposta da IA em ia_mensagens 
      (via Supabase service role, não pela sessão do app)
@@ -274,16 +312,18 @@ App → POST webhook n8n (payload: profile_id, persona, peca_id, mensagem)
 **Telas afetadas:** `ProductCard` (novo botão), nova tela `MeuPedidoScreen`, `PecasScreen`/`ProductDetailScreen` (badge flutuante), `PedidosScreen` (agora finalmente populada com dado real).
 
 ### `clientes_indicadas`
+> ⚠️ **Correção em 06/08/2026:** nomes reais de coluna divergem do que estava documentado — descoberto durante a construção do Painel Admin. Corrigido abaixo.
+
 | Coluna | Tipo | Notas |
 |---|---|---|
 | `profile_id` | uuid | FK — lojista que recebeu a indicação |
-| `nome_cliente` | text | |
+| `nome` | text | ~~nome_cliente~~ — nome real da coluna |
 | `contato` | text | |
-| `data_indicacao` | timestamptz | |
+| `indicado_em` | timestamptz | ~~data_indicacao~~ — nome real da coluna |
 
-**RLS:** usuária só lê as suas. Escrita só via Admin/n8n (service role).
+**RLS:** usuária só lê as suas. Escrita agora também permitida pelo Painel Admin (`role='admin'`), além de Admin/n8n via service role.
 
-### `ranking_pontos`
+### `ranking_pontos` (legado, não usado)
 | Coluna | Tipo | Notas |
 |---|---|---|
 | `profile_id` | uuid | FK |
@@ -291,7 +331,7 @@ App → POST webhook n8n (payload: profile_id, persona, peca_id, mensagem)
 | `pontos` | numeric | |
 | `posicao` | int | recalculado externamente, não pelo app |
 
-> ⚠️ Em aberto (já sinalizado no PRD): origem do dado de ranking. Schema pronto para receber, mas cálculo/integração não definidos.
+> ✅ Resolvido (sincronizado em 21/08/2026 com `docs/Documentacao-App-Miz.html`, que já registrava essa decisão desde 06/08/2026): esta tabela está **legada, mantida no banco só por precaução**. Nada escreve nela — a leitura de ranking é sempre a soma agregada de `pontos_eventos` em tempo real (ver 8.5-8.7). A flag anterior de "em aberto" estava desatualizada; o app mobile não depende mais desta tabela.
 
 ---
 
@@ -341,11 +381,13 @@ Só pontua ação que **(a)** tem custo real de repetir — não é "grátis" a 
 
 ### 8.3 Tabela de pontuação (Ranking Mensal)
 
+> ⚠️ **Atualizado em 20/08/2026:** "Solicitar orçamento" removido da pontuação (decisão do Rafael) — substituído por pontuação vinculada a valor real de compra, lançado no Painel Admin.
+
 | Ação | Pontos | Regra anti-farm |
 |---|---|---|
 | Abrir o app | 5 | 1x por dia (`data_evento` única) |
 | Sequência de 7 dias abrindo o app | +20 (bônus) | Calculado, não inserido pelo app diretamente (ver 8.6) |
-| Solicitar orçamento (WhatsApp) de uma peça | 15 | 1x por peça, por período (`profile_id + referencia_id + periodo` único) |
+| **Compra registrada (lançada pelo Admin)** | **4 pts a cada R$500 acumulados** | Não é por lançamento isolado — é por total acumulado cruzando múltiplos de R$500 (ver 8.7). Resto sempre acumula pro próximo lançamento, nunca se perde. |
 | Favoritar uma peça | 2 | 1x por peça, por período |
 | Usar qualquer IA | 3 | 1x por dia (não por pergunta — não importa quantas mensagens) |
 | **Assistir aula/curso — marco 25%** | **2** | 1x por módulo, por período |
@@ -365,13 +407,13 @@ Exibido na tela de **Perfil**, numa seção nova ("Minhas Conquistas" ou similar
 ### 8.5 Schema novo
 
 ```sql
--- Log de todo evento de pontuação (nunca escrito direto pelo app — só via RPC, ver 8.6)
+-- Log de todo evento de pontuação (nunca escrito direto pelo app — só via RPC/trigger, ver 8.6/8.7)
 create table pontos_eventos (
   id uuid primary key default gen_random_uuid(),
   profile_id uuid references profiles(id) not null,
-  tipo_acao text not null, -- 'abrir_app' | 'solicitar_orcamento' | 'favoritar_peca' | 'usar_ia' | 'streak_7_dias'
+  tipo_acao text not null, -- 'abrir_app' | 'favoritar_peca' | 'usar_ia' | 'streak_7_dias' | 'assistir_25' | 'assistir_50' | 'assistir_90' | 'compra'
   pontos int not null,
-  referencia_id uuid, -- nullable: id da peça, módulo, etc, conforme o tipo_acao
+  referencia_id uuid, -- nullable: id da peça, módulo, ou compra, conforme o tipo_acao
   data_evento date not null default current_date,
   periodo text not null, -- 'YYYY-MM', gerado a partir de data_evento
   created_at timestamptz default now()
@@ -424,7 +466,6 @@ begin
   -- Valida tipo de ação e define pontuação (nunca confia em valor vindo do cliente)
   v_pontos := case p_tipo_acao
     when 'abrir_app' then 5
-    when 'solicitar_orcamento' then 15
     when 'favoritar_peca' then 2
     when 'usar_ia' then 3
     when 'assistir_25' then 2
@@ -449,7 +490,63 @@ $$;
 await supabase.rpc('registrar_ponto', { p_tipo_acao: 'favoritar_peca', p_referencia_id: pecaId });
 ```
 
-### 8.7 Rastreamento de vídeo (Vimeo) + anti-avanço
+### 8.7 Compras registradas (novo, 20/08/2026) — pontuação por acúmulo, lançada no Admin
+
+> Substitui a antiga pontuação de "Solicitar orçamento". Admin lança o VALOR da compra (nunca decide pontos diretamente) — o banco calcula sozinho, olhando o total acumulado da lojista, não a compra isolada. Mesmo princípio do rastreamento de vídeo (crossing de marco), aplicado a dinheiro.
+
+```sql
+-- Compras lançadas pelo Admin (CNPJ resolvido para profile_id no front do Admin)
+create table compras_registradas (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid references profiles(id) not null,
+  valor_reais numeric not null check (valor_reais > 0),
+  data_compra date not null default current_date,
+  lancado_por uuid references profiles(id) not null, -- admin que lançou
+  created_at timestamptz default now()
+);
+
+-- RLS: só admin lê/escreve (mesmo padrão de pecas/cursos)
+-- (policies específicas para insert/select, seguindo o padrão já usado em cnpjs_reconhecidos)
+
+-- Trigger: calcula pontos automaticamente ao inserir uma compra nova
+create or replace function calcular_pontos_compra()
+returns trigger
+language plpgsql
+security definer
+as $$
+declare
+  v_total_antes numeric;
+  v_total_depois numeric;
+  v_pontos int;
+begin
+  select coalesce(sum(valor_reais), 0) into v_total_antes
+  from compras_registradas
+  where profile_id = new.profile_id and id != new.id;
+
+  v_total_depois := v_total_antes + new.valor_reais;
+
+  -- Pontos = novos múltiplos de R$500 cruzados desde o total anterior
+  v_pontos := (floor(v_total_depois / 500) - floor(v_total_antes / 500))::int * 4;
+
+  if v_pontos > 0 then
+    insert into pontos_eventos (profile_id, tipo_acao, pontos, referencia_id, periodo)
+    values (new.profile_id, 'compra', v_pontos, new.id, to_char(current_date, 'YYYY-MM'));
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger after_insert_compra
+after insert on compras_registradas
+for each row execute function calcular_pontos_compra();
+```
+
+**Por que o resto nunca se perde:** o cálculo sempre olha o **total acumulado** (soma de todas as compras já lançadas daquela lojista), não a compra isolada. Ex: compra de R$700 → cruza 1 múltiplo de 500 → 4 pts (sobra R$200 "guardado" implicitamente no total). Próxima compra de R$400 → total vira R$1.100 → cruzou o 2º múltiplo → mais 4 pts. Nada é lançado manualmente como "pontos" — só o valor da compra, sempre.
+
+**Nota sobre o Painel Admin (projeto separado):** a tela de lançamento de compra (buscar por CNPJ → confirmar lojista → digitar valor → salvar) é construída no projeto do Admin, não aqui. Este app mobile só **lê** o resultado (via Ranking/extrato), igual já faz com qualquer outro tipo de pontuação.
+
+### 8.8 Rastreamento de vídeo (Vimeo) + anti-avanço
 
 **Arquitetura:** WebView carrega uma página HTML própria (não a URL direta do player) com o SDK Player.js do Vimeo embutido, escutando eventos e comunicando com o app React Native via `postMessage`.
 
@@ -457,20 +554,22 @@ await supabase.rpc('registrar_ponto', { p_tipo_acao: 'favoritar_peca', p_referen
 - Evento `seeked`: se o novo tempo for maior que `maior_ponto_assistido_segundos`, o próprio script dentro do WebView chama `player.setCurrentTime(maiorPontoAlcancado)` — barra "puxa de volta", sem precisar de round-trip com o app
 - Quando `percentual >= 90` pela primeira vez: app chama uma segunda função RPC, `registrar_conquista(tipo, referencia_id, titulo)`, que insere em `conquistas` (mesma proteção de `on conflict do nothing` pra não duplicar)
 
-### 8.8 RLS
+### 8.9 RLS
 
-- `pontos_eventos`: usuária só **lê** os próprios (nunca escreve direto — só via RPC, que roda com `security definer`)
+- `pontos_eventos`: usuária só **lê** os próprios (nunca escreve direto — só via RPC/trigger, que rodam com `security definer`)
 - `conquistas`: usuária só lê as próprias (escrita só via RPC `registrar_conquista`, mesma lógica de segurança)
+- `compras_registradas`: leitura e escrita restritas a `role = 'admin'` — o app mobile nunca escreve aqui, só eventualmente lê pra exibir extrato (se decidido no futuro)
 
-### 8.9 Fases de implementação (seguir em ordem, cada uma testada antes da próxima)
+### 8.10 Fases de implementação (seguir em ordem, cada uma testada antes da próxima)
 
 1. **Schema + RPCs, sem tocar em nenhuma tela** — criar as tabelas, índices, e as 2 funções (`registrar_ponto`, `registrar_conquista`), testar via chamada direta (SQL Editor/API), sem integrar em lugar nenhum do app ainda
 2. **Rastreamento de vídeo isolado** — implementar o bridge WebView+Player.js só tecnicamente (progresso + anti-avanço), testado na tela de Aula que já existe, sem ainda disparar pontuação/conquista
 3. **Conectar conquista ao rastreamento** — quando `percentual >= 90%`, chama `registrar_conquista`
-4. **Conectar pontos aos pontos de interação já existentes** — abrir app, favoritar, solicitar orçamento, usar IA — um de cada vez, testando isoladamente que não quebrou o fluxo original de cada tela
+4. **Conectar pontos aos pontos de interação já existentes** — abrir app, favoritar, usar IA — um de cada vez, testando isoladamente que não quebrou o fluxo original de cada tela
 5. **Tela de Conquistas no Perfil** — nova seção de UI mostrando o currículo
 6. **Ranking lendo de `pontos_eventos` agregado** — substitui a leitura antiga (hoje vazia/mockada) pela leitura real
 7. **Bônus de sequência de 7 dias** — deixar por último, é o mais complexo (precisa checar dias consecutivos), pode ser calculado por uma função agendada (pg_cron ou n8n, mesmo padrão do timeout de aprovação de cadastro)
+8. **(20/08/2026) Compras registradas** — schema + trigger (seção 8.7), testado isoladamente; remoção da pontuação de "solicitar orçamento" do código do app e da função RPC
 
 ---
 
