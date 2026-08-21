@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { NavLink } from 'react-router-dom';
-import { BookMarked, LogOut, Shirt, ShoppingBag, UserCheck, ShieldCheck, BookOpen, FileText, Star, Trophy } from 'lucide-react';
+import { BookMarked, LogOut, Shirt, ShoppingBag, UserCheck, ShieldCheck, BookOpen, FileText, Star, DollarSign, Trophy } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { MotionButton } from './MotionButton';
 
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { to: '/cursos', label: 'Cursos', icon: BookOpen },
   { to: '/materiais', label: 'Materiais', icon: FileText },
   { to: '/indicacoes', label: 'Indicações', icon: Star },
+  { to: '/lancar-compra', label: 'Lançar Compra', icon: DollarSign },
   { to: '/gamificacao', label: 'Gamificação', icon: Trophy },
 ];
 

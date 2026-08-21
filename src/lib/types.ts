@@ -110,6 +110,15 @@ export type RecursoMaterial = {
   created_at: string;
 };
 
+export type CompraRegistrada = {
+  id: string;
+  profile_id: string;
+  valor_reais: number;
+  data_compra: string;
+  lancado_por: string;
+  created_at: string;
+};
+
 export type Profile = {
   id: string;
   nome: string | null;

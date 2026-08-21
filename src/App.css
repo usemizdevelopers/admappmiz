@@ -1454,3 +1454,120 @@
   gap: 10px;
   flex-wrap: wrap;
 }
+
+/* Lançar Compra */
+
+.busca-lojista-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  max-width: none;
+}
+
+.busca-lojista-row .form-field {
+  flex-grow: 1;
+  max-width: 360px;
+}
+
+.busca-lojista-row button[type='submit'] {
+  margin-top: 0;
+  flex-shrink: 0;
+}
+
+.lojista-encontrada {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: var(--surface-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+}
+
+.lojista-encontrada-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--highlight-pill-bg);
+  color: var(--highlight-pill-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.lojista-encontrada-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex-grow: 1;
+}
+
+.lojista-encontrada-info strong {
+  font-size: 15px;
+  color: var(--text-heading);
+}
+
+.lojista-encontrada-info span {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.historico-section {
+  margin-top: 24px;
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 13.5px;
+  margin-top: 16px;
+}
+
+.alert svg {
+  flex-shrink: 0;
+}
+
+.alert-danger {
+  background: var(--danger-pill-bg);
+  color: var(--danger-pill-text);
+}
+
+.alert-success {
+  background: var(--positive-bg);
+  color: var(--positive-text);
+}
+
+.currency-input {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+  background: var(--white);
+  max-width: 200px;
+}
+
+.currency-input:focus-within {
+  border-color: var(--brand-primary);
+}
+
+.currency-prefix {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+.currency-input input {
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--text-h);
+  width: 100%;
+  text-align: right;
+  font-family: var(--font-sans);
+}

@@ -15,6 +15,7 @@ import { CursoForm } from './pages/cursos/CursoForm';
 import { RecursosMateriaisList } from './pages/materiais/RecursosMateriaisList';
 import { RecursoMaterialForm } from './pages/materiais/RecursoMaterialForm';
 import { IndicacoesList } from './pages/indicacoes/IndicacoesList';
+import { LancarCompraPage } from './pages/lancarcompra/LancarCompraPage';
 import { GamificacaoPage } from './pages/gamificacao/GamificacaoPage';
 
 function AdminArea() {
@@ -37,6 +38,7 @@ function AdminArea() {
         <Route path="materiais/novo" element={<RecursoMaterialForm />} />
         <Route path="materiais/:id" element={<RecursoMaterialForm />} />
         <Route path="indicacoes" element={<IndicacoesList />} />
+        <Route path="lancar-compra" element={<LancarCompraPage />} />
         <Route path="gamificacao" element={<GamificacaoPage />} />
         <Route path="*" element={<Navigate to="/pecas" replace />} />
       </Routes>
