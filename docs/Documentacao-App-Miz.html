@@ -550,7 +550,7 @@
         <tbody class="points-highlight">
           <tr><td>Abrir o app</td><td class="points-value">5</td><td>Uma vez por dia</td></tr>
           <tr><td>Sequência de 7 dias seguidos</td><td class="points-value">+20</td><td>Bônus — quebra a sequência ao pular 1 dia</td></tr>
-          <tr><td>Solicitar orçamento (WhatsApp)</td><td class="points-value">15</td><td>Uma vez por peça, por mês</td></tr>
+          <tr><td>Compra registrada <span class="col-tag">novo, 20/08/2026</span></td><td class="points-value">4 / R$500</td><td>A cada R$500 acumulados em compras (lançadas pela equipe MIZ no Painel Admin) — não é por compra isolada, o resto sempre acumula pra próxima. Substitui "Solicitar orçamento" (removido em 20/08/2026)</td></tr>
           <tr><td>Favoritar uma peça</td><td class="points-value">2</td><td>Uma vez por peça, por mês</td></tr>
           <tr><td>Usar qualquer IA</td><td class="points-value">3</td><td>Uma vez por dia, não importa quantas mensagens</td></tr>
           <tr><td>Assistir 25% de uma aula</td><td class="points-value">2</td><td>Uma vez por módulo</td></tr>
@@ -560,7 +560,7 @@
       </table>
 
       <h4>Como o sistema evita fraude</h4>
-      <p>Nenhuma pontuação é escrita diretamente pelo aplicativo. Toda ação passa por uma função protegida no banco de dados, que decide sozinha se aquilo é válido — o app apenas "pede" para pontuar, nunca insere o valor diretamente. Isso impede que alguém manipule a própria pontuação chamando o sistema por fora do app.</p>
+      <p>Nenhuma pontuação é escrita diretamente pelo aplicativo. Toda ação passa por uma função protegida no banco de dados, que decide sozinha se aquilo é válido — o app apenas "pede" para pontuar, nunca insere o valor diretamente. Isso impede que alguém manipule a própria pontuação chamando o sistema por fora do app. A pontuação de <strong>Compra registrada</strong> segue o mesmo princípio por outro caminho: quem grava o valor é a equipe MIZ no Painel Admin (nunca a lojista, nunca o app), e um trigger no banco calcula os pontos sozinho — nem o app, nem o Admin decidem o número diretamente.</p>
     </section>
 
     <section id="conquistas">
