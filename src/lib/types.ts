@@ -119,6 +119,21 @@ export type CompraRegistrada = {
   created_at: string;
 };
 
+export type Notificacao = {
+  id: string;
+  titulo: string;
+  mensagem: string;
+  enviado_por: string;
+  created_at: string;
+};
+
+export type PushToken = {
+  id: string;
+  profile_id: string;
+  token: string;
+  updated_at: string;
+};
+
 export type Profile = {
   id: string;
   nome: string | null;

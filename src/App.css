@@ -1393,6 +1393,12 @@
   margin: 0 0 16px;
 }
 
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 /* Grid de campos pareados (Nome/Código, Coleção/Categoria...) */
 .entity-form.form-grid {
   display: grid;
@@ -1402,9 +1408,6 @@
 }
 
 .entity-form.form-grid .form-field {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
   margin-top: 8px;
 }
 
