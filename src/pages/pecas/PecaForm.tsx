@@ -7,6 +7,7 @@ import { FormField } from '../../components/FormField';
 import { Checkbox } from '../../components/Checkbox';
 import { SectionCard } from '../../components/SectionCard';
 import { StatusPill } from '../../components/StatusPill';
+import { ConfirmModal } from '../../components/ConfirmModal';
 import type { Colecao } from '../../lib/types';
 import { PecaImagensSection } from './PecaImagensSection';
 import { PecaCoresSection } from './PecaCoresSection';
@@ -28,12 +29,14 @@ export function PecaForm() {
   const [comoVender, setComoVender] = useState('');
   const [esgotado, setEsgotado] = useState(false);
   const [ativa, setAtiva] = useState(true);
+  const [ativaOriginal, setAtivaOriginal] = useState(true);
   const [tone, setTone] = useState('');
 
   const [colecoes, setColecoes] = useState<Colecao[]>([]);
   const [loading, setLoading] = useState(isEdit);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [confirmDesativar, setConfirmDesativar] = useState(false);
 
   useEffect(() => {
     supabase
@@ -63,14 +66,28 @@ export function PecaForm() {
           setComoVender(data.como_vender ?? '');
           setEsgotado(data.esgotado);
           setAtiva(data.ativa);
+          setAtivaOriginal(data.ativa);
           setTone(data.tone ?? '');
         }
         setLoading(false);
       });
   }, [id]);
 
-  async function handleSubmit(e: FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
+    if (isEdit && ativaOriginal && !ativa) {
+      setConfirmDesativar(true);
+      return;
+    }
+    salvar();
+  }
+
+  async function confirmarDesativacaoESalvar() {
+    setConfirmDesativar(false);
+    await salvar();
+  }
+
+  async function salvar() {
     setSaving(true);
     setError(null);
 
@@ -250,6 +267,15 @@ export function PecaForm() {
           </div>
         )}
       </div>
+
+      <ConfirmModal
+        open={confirmDesativar}
+        title="Desativar peça"
+        message={`Desativar "${nome}"? Ela vai sumir de todo o app até ser reativada — diferente de "Esgotado", que só some do carrinho.`}
+        confirmLabel="Desativar"
+        onConfirm={confirmarDesativacaoESalvar}
+        onCancel={() => setConfirmDesativar(false)}
+      />
     </div>
   );
 }

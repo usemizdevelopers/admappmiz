@@ -28,6 +28,7 @@ export function PecasList() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [pecaParaExcluir, setPecaParaExcluir] = useState<Peca | null>(null);
+  const [pecaParaDesativar, setPecaParaDesativar] = useState<Peca | null>(null);
 
   const [busca, setBusca] = useState('');
   const [categoriaFiltro, setCategoriaFiltro] = useState('');
@@ -65,6 +66,21 @@ export function PecasList() {
       return;
     }
     load();
+  }
+
+  function handleToggleAtiva(peca: Peca) {
+    if (peca.ativa) {
+      setPecaParaDesativar(peca);
+    } else {
+      toggle(peca, 'ativa');
+    }
+  }
+
+  async function confirmarDesativacao() {
+    const peca = pecaParaDesativar;
+    if (!peca) return;
+    setPecaParaDesativar(null);
+    await toggle(peca, 'ativa');
   }
 
   async function confirmarRemocao() {
@@ -267,7 +283,7 @@ export function PecasList() {
                   <StatusPill
                     variant={p.ativa ? 'positive' : 'neutral'}
                     dot
-                    onClick={() => toggle(p, 'ativa')}
+                    onClick={() => handleToggleAtiva(p)}
                   >
                     {p.ativa ? 'Ativa' : 'Inativa'}
                   </StatusPill>
@@ -304,6 +320,15 @@ export function PecasList() {
         message={`Excluir a peça "${pecaParaExcluir?.nome}"? Essa ação não pode ser desfeita.`}
         onConfirm={confirmarRemocao}
         onCancel={() => setPecaParaExcluir(null)}
+      />
+
+      <ConfirmModal
+        open={pecaParaDesativar !== null}
+        title="Desativar peça"
+        message={`Desativar a peça "${pecaParaDesativar?.nome}"? Ela vai sumir de todo o app até ser reativada — diferente de "Esgotado", que só some do carrinho.`}
+        confirmLabel="Desativar"
+        onConfirm={confirmarDesativacao}
+        onCancel={() => setPecaParaDesativar(null)}
       />
     </div>
   );
