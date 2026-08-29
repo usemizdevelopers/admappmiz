@@ -3,6 +3,8 @@
 
 *Documento de mesmo espírito do `ref_estrutura_codificada.md`, só que para dados em vez de visual: define schema, relacionamentos e regras de acesso, para que o Claude Code não precise inventar nome de tabela/coluna. Serve de ponte entre o PRD/Jornada/Estrutura de Telas e a implementação real de funcionalidade.*
 
+> **Fonte de verdade compartilhada (confirmado em 29/08/2026):** este documento cobre o banco usado tanto pelo app mobile quanto pelo Painel Admin — os dois times editam aqui. Se algo mudar de um lado (schema, RLS, fluxo), documente aqui antes/junto, não só no repositório do outro projeto — evita duas versões divergentes da mesma verdade (como já aconteceu na seção 9, resolvido em 29/08/2026).
+
 ---
 
 ## 0. Princípios gerais
