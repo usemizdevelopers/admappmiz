@@ -583,6 +583,8 @@ for each row execute function calcular_pontos_compra();
 
 `expo-notifications` tem código nativo — **vai exigir gerar um novo Dev Client** (`eas build --profile development`) antes de testar em device real, mesmo padrão já visto com Reanimated e react-native-webview. Preview web não vai validar o recebimento real de push (mesma limitação de sempre com módulo nativo).
 
+**⚠️ Credencial FCM V1 (bloqueador já enfrentado, 27-28/08/2026):** captar e salvar o Expo Push Token (Fase 2) **não prova** que o envio funciona — `getExpoPushTokenAsync()` só precisa do `projectId` do Expo, não valida nada do lado do FCM. O envio real (Fase 4) só funciona se existir uma **Google Service Account Key para Push Notifications (FCM V1)** de fato atribuída ao projeto Android no EAS — ausência dela gera o erro `"Unable to retrieve the FCM server key for the recipient's app."` na Expo Push API, silenciosamente (a captura de token continua funcionando normal). Verificar/configurar: `npx eas-cli credentials -p android` → **Google Service Account** → **Manage your Google Service Account Key for Push Notifications (FCM V1)** — se aparecer vazio, gerar uma chave nova no Firebase Console (projeto **use-miz**, o mesmo do `google-services.json`) em Configurações do projeto → Contas de serviço → Gerar nova chave privada, e fazer upload ali. Confirmado funcionando via teste real: `POST /--/api/v2/push/send` → `getReceipts` retornando `status: ok` → popup recebido no device.
+
 ### 9.2 Schema
 
 ```sql
@@ -659,12 +661,9 @@ create table notificacoes_ocultas (
 3. **Tela de Notificações no app mobile** — lista + marcação de lida + badge no sino, com dado mockado/inserido manualmente pra testar antes do envio real funcionar; inclui "arrastar pra excluir" (`notificacoes_ocultas`, adicionada nesta fase — exige `react-native-gesture-handler`, também Dev Client novo)
 4. **Envio real pelo Admin** — tela de disparo + integração com Expo Push API, testado ponta a ponta com um device real recebendo notificação de verdade
 
-### 9.6 Bloqueadores confirmados na construção da tela do Admin (29/08/2026)
+### 9.6 CORS confirmado e resolvido (29/08/2026)
 
-Dois problemas reais descobertos ao testar de ponta a ponta, não suposição:
-
-1. **CORS (resolvido)** — a Expo Push API não devolve `Access-Control-Allow-Origin`, então o navegador bloqueia a chamada direta do Painel Admin (confirmado: funciona normalmente via `curl`/server-side, falha só no browser). Corrigido com uma Edge Function de proxy (`supabase/functions/send-push`, no repositório do Admin) — o Admin chama a function via `supabase.functions.invoke`, que lida com CORS corretamente; a function roda no servidor e chama a Expo sem essa restrição.
-2. **Chave FCM ausente (⚠️ em aberto, lado mobile/Expo — não é algo que o Admin resolve):** testado via `curl` direto contra um token Android real já cadastrado — a Expo Push API respondeu `"error":"InvalidCredentials"` / `"Unable to retrieve the FCM server key for the recipient's app"`. O projeto Expo do app mobile ainda não tem a chave de servidor do Firebase Cloud Messaging configurada (ver documentação da Expo sobre credenciais FCM). Sem isso, **nenhuma notificação Android é entregue de verdade**, mesmo com o proxy funcionando perfeitamente — é o equivalente Android da pendência já conhecida de credencial APNs no iOS. Precisa ser resolvido por quem administra o projeto Expo/Firebase do app mobile antes do envio real funcionar ponta a ponta.
+A Expo Push API não devolve `Access-Control-Allow-Origin`, então o navegador bloqueia a chamada direta do Painel Admin (confirmado: funciona normalmente via `curl`/server-side, falha só no browser). Corrigido com uma Edge Function de proxy (`supabase/functions/send-push`, no repositório do Admin) — o Admin chama a function via `supabase.functions.invoke`, que lida com CORS corretamente; a function roda no servidor e chama a Expo sem essa restrição. Testado ponta a ponta depois da chave FCM V1 configurada (ver 9.1): retorno `status: ok`, popup recebido no device real.
 
 ---
 
