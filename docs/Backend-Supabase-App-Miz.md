@@ -116,6 +116,8 @@ Tabelas simples de opções (`peca_id`, `valor` **ou** `nome` conforme a tabela,
 
 **Realtime:** habilitado em `pecas` (Admin edita → reflete na hora).
 
+> ⚠️ **Limitação conhecida (documentada 20/08/2026):** Realtime via `postgres_changes` só entrega o evento se a usuária **ainda conseguir** dar `SELECT` na linha *depois* da mudança (comportamento oficial do Supabase, não é bug). Isso significa que quando `ativa` vira `false` (peça desativada), a lojista comum **não recebe nenhum evento** — a RLS já nega visibilidade àquela linha no momento do envio, então o Realtime simplesmente não avisa "remova isso da tela". Mudanças de campo que NÃO afetam visibilidade (nome, foto, esgotado) continuam funcionando normalmente via Realtime. Pra pegar a desativação, hoje depende do **pull-to-refresh** já existente na tela de Peças (comportamento aceito por decisão consciente — baixo custo, ação rara). Se um dia isso incomodar na prática, a solução correta é um canal de **Broadcast** (gatilho no banco manda `{id, ativa}` por canal separado, independente de RLS de tabela) — não implementado ainda, por não ser prioridade.
+
 **Telas relacionadas:** Peças e Coleções, Detalhe da Peça.
 
 ---
@@ -323,7 +325,7 @@ App → POST webhook n8n (payload acima)
 
 **RLS:** usuária só lê as suas. Escrita agora também permitida pelo Painel Admin (`role='admin'`), além de Admin/n8n via service role.
 
-### `ranking_pontos` (legado, não usado)
+### `ranking_pontos`
 | Coluna | Tipo | Notas |
 |---|---|---|
 | `profile_id` | uuid | FK |
@@ -331,7 +333,7 @@ App → POST webhook n8n (payload acima)
 | `pontos` | numeric | |
 | `posicao` | int | recalculado externamente, não pelo app |
 
-> ✅ Resolvido (sincronizado em 21/08/2026 com `docs/Documentacao-App-Miz.html`, que já registrava essa decisão desde 06/08/2026): esta tabela está **legada, mantida no banco só por precaução**. Nada escreve nela — a leitura de ranking é sempre a soma agregada de `pontos_eventos` em tempo real (ver 8.5-8.7). A flag anterior de "em aberto" estava desatualizada; o app mobile não depende mais desta tabela.
+> ⚠️ Em aberto (já sinalizado no PRD): origem do dado de ranking. Schema pronto para receber, mas cálculo/integração não definidos.
 
 ---
 
@@ -570,6 +572,99 @@ for each row execute function calcular_pontos_compra();
 6. **Ranking lendo de `pontos_eventos` agregado** — substitui a leitura antiga (hoje vazia/mockada) pela leitura real
 7. **Bônus de sequência de 7 dias** — deixar por último, é o mais complexo (precisa checar dias consecutivos), pode ser calculado por uma função agendada (pg_cron ou n8n, mesmo padrão do timeout de aprovação de cadastro)
 8. **(20/08/2026) Compras registradas** — schema + trigger (seção 8.7), testado isoladamente; remoção da pontuação de "solicitar orçamento" do código do app e da função RPC
+
+---
+
+## 9. Notificações Push (adicionado 20/08/2026)
+
+> Escopo do MVP, confirmado com o Rafael: só **broadcast** (mesma mensagem pra todo mundo), disparo **sempre manual** pelo Painel Admin (sem gatilho automático por evento do sistema por enquanto), sem deep-link definido ainda (abre o app na Home) — mas precisa ficar **registrado no ícone de sino** já existente nos headers, com histórico e indicador de não lida.
+
+### 9.1 Dependência nativa — atenção
+
+`expo-notifications` tem código nativo — **vai exigir gerar um novo Dev Client** (`eas build --profile development`) antes de testar em device real, mesmo padrão já visto com Reanimated e react-native-webview. Preview web não vai validar o recebimento real de push (mesma limitação de sempre com módulo nativo).
+
+### 9.2 Schema
+
+```sql
+-- Token de push por dispositivo/lojista
+create table push_tokens (
+  id uuid primary key default gen_random_uuid(),
+  profile_id uuid references profiles(id) not null,
+  token text not null unique,
+  updated_at timestamptz default now()
+);
+-- RLS: usuária só gerencia os próprios tokens
+
+-- Notificações enviadas (broadcast, criado pelo Admin)
+create table notificacoes (
+  id uuid primary key default gen_random_uuid(),
+  titulo text not null,
+  mensagem text not null,
+  enviado_por uuid references profiles(id) not null, -- admin que disparou
+  created_at timestamptz default now()
+);
+-- RLS: leitura para qualquer lojista aprovada (status_cadastro='approved'); 
+-- escrita só role='admin' (mesmo padrão de cnpjs_reconhecidos)
+
+-- Controle de leitura por usuária (pro badge/histórico do sino)
+create table notificacoes_lidas (
+  profile_id uuid references profiles(id) not null,
+  notificacao_id uuid references notificacoes(id) not null,
+  lida_em timestamptz default now(),
+  primary key (profile_id, notificacao_id)
+);
+-- RLS: usuária só gerencia as próprias leituras
+
+-- Controle de exclusão por usuária (Fase 3: "arrastar pra excluir" na tela
+-- de Notificações). `notificacoes` é broadcast e só admin pode apagar de
+-- verdade (escrita restrita, ver acima) — excluir aqui nunca é um delete na
+-- linha real (isso sumiria a notificação pra todo mundo), é só "não me
+-- mostre mais essa": uma marcação por usuária, mesmo padrão de
+-- notificacoes_lidas.
+create table notificacoes_ocultas (
+  profile_id uuid references profiles(id) not null,
+  notificacao_id uuid references notificacoes(id) not null,
+  ocultada_em timestamptz default now(),
+  primary key (profile_id, notificacao_id)
+);
+-- RLS: usuária só gerencia as próprias exclusões (não enxerga nem consegue
+-- ocultar em nome de outra usuária); grant real é só select+insert (o fluxo
+-- nunca desfaz uma exclusão, só insere `on conflict do nothing`)
+```
+
+**Badge de não lidas** = contar `notificacoes` cujo `id` não aparece em `notificacoes_lidas` para o `profile_id` da usuária logada, excluindo as que estiverem em `notificacoes_ocultas` da mesma usuária.
+
+### 9.3 Fluxo — App Mobile
+
+1. Ao logar/abrir o app (usuária aprovada), solicitar permissão de notificação (`expo-notifications`), obter o Expo Push Token, e fazer `upsert` em `push_tokens` (por `token`, não duplicar se já existir)
+2. Ícone de sino (já existente nos headers) ganha um badge com a contagem de não lidas
+3. Tocar no sino abre uma tela **Notificações** (nova) — lista `titulo`/`mensagem`/data, mais recente primeiro
+4. Ao abrir essa tela (ou ao visualizar cada item), marcar como lida (`insert` em `notificacoes_lidas`, `on conflict do nothing`)
+5. Arrastar um item da lista pro lado oculta ele da própria lista (`insert` em `notificacoes_ocultas`, `on conflict do nothing`) — não apaga a notificação de verdade, só some pra quem arrastou
+6. Notificação recebida com app em background/fechado: comportamento padrão do sistema operacional (aparece na central de notificações do celular); ao tocar, abre o app na Home (sem deep-link específico por enquanto)
+
+### 9.4 Fluxo — Painel Admin (projeto separado)
+
+1. Tela simples: campo de título + mensagem + botão "Enviar notificação"
+2. Ao confirmar, o Admin chama a Edge Function `send-push` (ver 9.6) — **não** chama a Expo Push API direto do navegador (CORS bloqueia, ver 9.6). A function, rodando server-side:
+   - Insere 1 linha em `notificacoes`, usando o JWT de quem chamou (RLS normal)
+   - Busca todos os `push_tokens` cadastrados ela mesma — nunca aceita lista de tokens vinda do cliente, pra não virar um relay aberto de push
+   - Envia em lote pra **Expo Push API** (`https://exp.host/--/api/v2/push/send`, aceita lotes de até 100 tokens por chamada, sem exigir credencial secreta pro uso básico)
+3. Confirmação explícita antes de enviar (mesmo padrão de ação importante já usado nas outras telas do Admin) — notificação enviada não tem "desfazer"
+
+### 9.5 Fases de implementação
+
+1. **Schema** (as 3 tabelas + RLS) — testado isoladamente, sem UI
+2. **Registro de push token no app mobile** — permissão + captura do token + upsert, testado em device real (exige Dev Client novo)
+3. **Tela de Notificações no app mobile** — lista + marcação de lida + badge no sino, com dado mockado/inserido manualmente pra testar antes do envio real funcionar; inclui "arrastar pra excluir" (`notificacoes_ocultas`, adicionada nesta fase — exige `react-native-gesture-handler`, também Dev Client novo)
+4. **Envio real pelo Admin** — tela de disparo + integração com Expo Push API, testado ponta a ponta com um device real recebendo notificação de verdade
+
+### 9.6 Bloqueadores confirmados na construção da tela do Admin (29/08/2026)
+
+Dois problemas reais descobertos ao testar de ponta a ponta, não suposição:
+
+1. **CORS (resolvido)** — a Expo Push API não devolve `Access-Control-Allow-Origin`, então o navegador bloqueia a chamada direta do Painel Admin (confirmado: funciona normalmente via `curl`/server-side, falha só no browser). Corrigido com uma Edge Function de proxy (`supabase/functions/send-push`, no repositório do Admin) — o Admin chama a function via `supabase.functions.invoke`, que lida com CORS corretamente; a function roda no servidor e chama a Expo sem essa restrição.
+2. **Chave FCM ausente (⚠️ em aberto, lado mobile/Expo — não é algo que o Admin resolve):** testado via `curl` direto contra um token Android real já cadastrado — a Expo Push API respondeu `"error":"InvalidCredentials"` / `"Unable to retrieve the FCM server key for the recipient's app"`. O projeto Expo do app mobile ainda não tem a chave de servidor do Firebase Cloud Messaging configurada (ver documentação da Expo sobre credenciais FCM). Sem isso, **nenhuma notificação Android é entregue de verdade**, mesmo com o proxy funcionando perfeitamente — é o equivalente Android da pendência já conhecida de credencial APNs no iOS. Precisa ser resolvido por quem administra o projeto Expo/Firebase do app mobile antes do envio real funcionar ponta a ponta.
 
 ---
 
