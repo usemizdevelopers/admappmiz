@@ -1,8 +1,12 @@
 node_modules
 dist
-.env
-.env.*
-!.env.example
 .git
 .vscode
 *.md
+
+# .env NÃO é ignorado aqui de propósito: se o EasyPanel escrever um .env no
+# contexto de build (toggle "Create env file"), o Vite precisa dele durante
+# "npm run build" pra embutir VITE_SUPABASE_URL/VITE_SUPABASE_ANON_KEY no
+# bundle. Só a anon key vai ali (protegida por RLS, feita pra ser pública no
+# navegador) — nunca a service_role. O arquivo some do estágio final da
+# imagem de qualquer forma, já que só copiamos /app/dist pro nginx.
