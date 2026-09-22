@@ -24,6 +24,7 @@ export function PecaForm() {
   const [codigoReferencia, setCodigoReferencia] = useState('');
   const [colecaoId, setColecaoId] = useState('');
   const [categoria, setCategoria] = useState('');
+  const [descricao, setDescricao] = useState('');
   const [composicao, setComposicao] = useState('');
   const [diferenciais, setDiferenciais] = useState('');
   const [comoVender, setComoVender] = useState('');
@@ -61,6 +62,7 @@ export function PecaForm() {
           setCodigoReferencia(data.codigo_referencia ?? '');
           setColecaoId(data.colecao_id ?? '');
           setCategoria(data.categoria ?? '');
+          setDescricao(data.descricao ?? '');
           setComposicao(data.composicao ?? '');
           setDiferenciais(data.diferenciais ?? '');
           setComoVender(data.como_vender ?? '');
@@ -96,6 +98,7 @@ export function PecaForm() {
       codigo_referencia: codigoReferencia,
       colecao_id: colecaoId || null,
       categoria: categoria || null,
+      descricao: descricao || null,
       composicao: composicao || null,
       diferenciais: diferenciais || null,
       como_vender: comoVender || null,
@@ -168,6 +171,16 @@ export function PecaForm() {
                 value={categoria}
                 onChange={(e) => setCategoria(e.target.value)}
                 placeholder="ex: blusas, calças"
+              />
+            </FormField>
+
+            <FormField label="Descrição" htmlFor="peca-descricao" span="full">
+              <textarea
+                id="peca-descricao"
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
+                placeholder="Texto livre sobre a peça, sem tópico específico"
+                rows={2}
               />
             </FormField>
 

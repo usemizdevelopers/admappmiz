@@ -25,6 +25,7 @@ export type Peca = {
   codigo_referencia: string | null;
   colecao_id: string | null;
   categoria: string | null;
+  descricao: string | null;
   composicao: string | null;
   diferenciais: string | null;
   como_vender: string | null;
