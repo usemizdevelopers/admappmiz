@@ -1,9 +1,10 @@
 import { supabase } from './supabase';
+import { sanitizeFilename } from './sanitizeFilename';
 
 const BUCKET = 'pecas';
 
 export async function uploadToPecasBucket(file: File, folder: string): Promise<string> {
-  const path = `${folder}/${Date.now()}-${file.name}`;
+  const path = `${folder}/${Date.now()}-${sanitizeFilename(file.name)}`;
   const { error } = await supabase.storage.from(BUCKET).upload(path, file);
   if (error) throw error;
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);

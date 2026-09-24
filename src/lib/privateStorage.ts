@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { sanitizeFilename } from './sanitizeFilename';
 
 /**
  * 'academia' e 'materiais' são buckets privados: a leitura só é liberada para
@@ -14,7 +15,7 @@ export async function uploadToPrivateBucket(
   folder: string,
   fixedName?: string
 ): Promise<string> {
-  const filename = fixedName ?? `${Date.now()}-${file.name}`;
+  const filename = fixedName ?? `${Date.now()}-${sanitizeFilename(file.name)}`;
   const path = `${folder}/${filename}`;
   const { error } = await supabase.storage.from(bucket).upload(path, file, { upsert: Boolean(fixedName) });
   if (error) throw error;
